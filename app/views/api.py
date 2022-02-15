@@ -1,4 +1,9 @@
+import itertools
+
+from app.models.weather_db import HourData
+
 from app import app
+from app.models import pg_scoped_factory, DayData
 from app.utils.api_utils import (get_lat_lon,
                                  get_now_by_lat_lon,
                                  past_weather_data,
@@ -41,14 +46,101 @@ def weather(country_code: str, city: str, date: str):
                                  tz_info=time_zone)
     days_diff = user_date.day - day_now
 
+    # db
+    weather_api_db = pg_scoped_factory()
+
     if days_diff < 0:
         result_weather = past_weather_data(lat=str(lat), lon=str(lon),
                                            dt=str(int(dt)))
-    elif 0 < days_diff <= 2:
+    elif 0 <= days_diff <= 2:
         result_weather = future_weather_data(lat=str(lat), lon=str(lon),
                                              dt=int(dt), time_range='hourly')
+        temp = result_weather['temp']
+        feels_like = result_weather['feels_like']
+        pressure = result_weather['pressure']
+        humidity = result_weather['humidity']
+        dew_point = result_weather['dew_point']
+        uvi = result_weather['uvi']
+        clouds = result_weather['clouds']
+        visibility = result_weather['visibility']
+        wind_speed = result_weather['wind_speed']
+        wind_deg = result_weather['wind_deg']
+        wind_gust = result_weather['wind_gust']
+
+        _id = next(itertools.count(1, 1))
+        hour_id = next(itertools.count(60, 1))
+        hour_data = HourData(id=_id,
+                             hour_id=hour_id,
+                             dt=dt,
+                             hour_temp=temp,
+                             feels_like=feels_like,
+                             pressure=pressure,
+                             humidity=humidity,
+                             dew_point=dew_point,
+                             uvi=uvi,
+                             clouds=clouds,
+                             visibility=visibility,
+                             wind_speed=wind_speed,
+                             wind_deg=wind_deg,
+                             wind_gust=wind_gust)
+        weather_api_db.add(hour_data)
+        weather_api_db.commit()
+
     else:
         result_weather = future_weather_data(lat=str(lat), lon=str(lon),
                                              dt=int(dt), time_range='daily')
+
+        sunrise = result_weather['sunrise']
+        sunset = result_weather['sunset']
+        moonrise = result_weather['moonrise']
+        moonset = result_weather['moonset']
+        moon_phase = result_weather['moon_phase']
+        pressure = result_weather['pressure']
+        humidity = result_weather['humidity']
+        dew_point = result_weather['dew_point']
+        wind_speed = result_weather['wind_speed']
+        wind_deg = result_weather['wind_deg']
+        clouds = result_weather['clouds']
+        pop = result_weather['pop']
+        if ('snow' in result_weather
+                and 'rain' not in result_weather):
+            snow = result_weather['snow']
+            rain = 0.0
+        elif ('rain' in result_weather
+                and 'snow' not in result_weather):
+            rain = result_weather['rain']
+            snow = 0.0
+        elif ('rain' in result_weather
+                and 'snow' in result_weather):
+            rain = result_weather['rain']
+            snow = result_weather['snow']
+        else:
+            rain = 0.0
+            snow = 0.0
+
+        uvi = result_weather['uvi']
+
+        _id = next(itertools.count(1, 1))
+        day_id = next(itertools.count(60 * 24, 1))
+        day_data = DayData(id=_id,
+                           day_id=day_id,
+                           dt=dt,
+                           sunrise=sunrise,
+                           sunset=sunset,
+                           moonrise=moonrise,
+                           moonset=moonset,
+                           moon_phase=moon_phase,
+                           pressure=pressure,
+                           humidity=humidity,
+                           dew_point=dew_point,
+                           wind_speed=wind_speed,
+                           wind_deg=wind_deg,
+                           clouds=clouds,
+                           pop=pop,
+                           rain=rain,
+                           snow=snow,
+                           uvi=uvi)
+        weather_api_db.add(day_data)
+        weather_api_db.commit()
 
     return {'result_weather': result_weather}
