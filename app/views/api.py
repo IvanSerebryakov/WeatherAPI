@@ -2,8 +2,7 @@ from app import app
 from app.utils.api_utils import (get_lat_lon,
                                  get_now_by_lat_lon,
                                  past_weather_data,
-                                 future_hour_weather_data,
-                                 future_day_weather_data)
+                                 future_weather_data)
 from app.utils.datetime_utils import (get_utctime_by_datetime,
                                       iso_date_parser)
 
@@ -46,10 +45,10 @@ def weather(country_code: str, city: str, date: str):
         result_weather = past_weather_data(lat=str(lat), lon=str(lon),
                                            dt=str(int(dt)))
     elif 0 < days_diff <= 2:
-        result_weather = future_hour_weather_data(lat=str(lat), lon=str(lon),
-                                                  dt=int(dt))
+        result_weather = future_weather_data(lat=str(lat), lon=str(lon),
+                                             dt=int(dt), time_range='hourly')
     else:
-        result_weather = future_day_weather_data(lat=str(lat), lon=str(lon),
-                                                 dt=int(dt))
+        result_weather = future_weather_data(lat=str(lat), lon=str(lon),
+                                             dt=int(dt), time_range='daily')
 
     return {'result_weather': result_weather}

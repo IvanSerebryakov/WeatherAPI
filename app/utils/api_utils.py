@@ -75,11 +75,17 @@ def now_weather_data(lat: str, lon: str):
     return current_weather_json
 
 
-def future_hour_weather_data(lat: str, lon: str, dt: int):
+def future_weather_data(lat: str, lon: str,
+                        dt: int, time_range: str):
     """
     Future weather forecast
-    - hourly +48 hours
+    - if time_range == hourly: +48 hours
+    - if time_range == daily: +7 days
 
+    :param lat:
+    :param lon:
+    :param dt:
+    :param time_range: 'hourly' or 'daily'
     :return: json - weather data
     """
 
@@ -87,37 +93,15 @@ def future_hour_weather_data(lat: str, lon: str, dt: int):
                + '&lon=' + str(lon) + '&appid=' + API_KEY)
     one_api_result = requests.get(one_api).json()
 
-    hourly_weather_list = one_api_result['hourly']
+    weather_list = one_api_result[time_range]
 
     # dts
-    hourly_weather_dts = [hourly_weather['dt'] for hourly_weather
-                          in hourly_weather_list]
+    weather_dts = [weather['dt'] for weather in weather_list]
 
-    nearest_value = get_nearest_value(hourly_weather_dts, dt)
-    nearest_value_index = hourly_weather_dts.index(nearest_value)
-    hour_weather = hourly_weather_list[nearest_value_index]
-    return hour_weather
-
-
-def future_day_weather_data(lat: str, lon: str, dt: int):
-    """
-    Future weather forecast
-    - daily +7 days
-
-    :return: json - weather data
-    """
-
-    one_api = (os.getenv('ONE_CALL_API') + 'lat=' + str(lat)
-               + '&lon=' + str(lon) + '&appid=' + API_KEY)
-    one_api_result = requests.get(one_api).json()
-    daily_weather_list = one_api_result['daily']
-
-    daily_weather_dts = [daily_weather['dt'] for daily_weather
-                         in daily_weather_list]
-    nearest_value = get_nearest_value(daily_weather_dts, dt)
-    nearest_value_index = daily_weather_dts.index(nearest_value)
-    day_weather = daily_weather_list[nearest_value_index]
-    return day_weather
+    nearest_value = get_nearest_value(weather_dts, dt)
+    nearest_value_index = weather_dts.index(nearest_value)
+    weather = weather_list[nearest_value_index]
+    return weather
 
 
 def get_nearest_value(iter_obj, value):
