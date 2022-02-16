@@ -61,6 +61,9 @@ class HourData(Base):
     wind_speed: float = Column(Float())
     wind_deg: float = Column(Float())
     wind_gust: float = Column(Float())
+    pop: float = Column(Float())
+    rain_1h: float = Column(Float())
+    show_1h: float = Column(Float())
 
 
 class DayData(Base):
@@ -79,6 +82,7 @@ class DayData(Base):
     pressure: float = Column(Float())
     humidity: float = Column(Float())
     dew_point: float = Column(Float())
+    wind_gust: float = Column(Float())
     wind_speed: float = Column(Float())
     wind_deg: float = Column(Float())
     clouds: float = Column(Float())

@@ -114,3 +114,32 @@ def get_nearest_value(iter_obj, value):
     """
 
     return min(iter_obj, key=lambda x: abs(x - value))
+
+
+def check_missed_values(result_weather):
+    """
+    checking for values that might be missing
+
+    :param result_weather: json weather data
+    :return: wind_gust, snow, rain
+    """
+
+    # check wind_gust
+    if 'wind_gust' in result_weather:
+        wind_gust = result_weather['wind_gust']
+    else:
+        wind_gust = 0.0
+
+    # check snow
+    if 'snow' in result_weather:
+        snow = result_weather['snow']
+    else:
+        snow = 0.0
+
+    # check rain
+    if 'rain' in result_weather:
+        rain = result_weather['rain']
+    else:
+        rain = 0.0
+
+    return wind_gust, snow, rain
