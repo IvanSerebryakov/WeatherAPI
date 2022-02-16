@@ -3,8 +3,14 @@ import itertools
 from app.models.weather_db import HourData
 
 from app import app
-from app.models import pg_scoped_factory, DayData, PastData, PastWeather, HourWeather, DayWeather, DayTemperature, \
-    DayFeelsLike
+from app.models import (pg_scoped_factory,
+                        DayData,
+                        PastData,
+                        PastWeather,
+                        HourWeather,
+                        DayWeather,
+                        DayTemperature,
+                        DayFeelsLike)
 from app.utils.api_utils import (get_lat_lon,
                                  get_now_by_lat_lon,
                                  past_weather_data,
