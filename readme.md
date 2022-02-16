@@ -31,7 +31,7 @@ Instructions for installing and running the project on your computer
 2. Clone the repo
 
 ```
-
+git clone https://github.com/IvanSerebryakov/WeatherAPI.git
 ```
 3. Activate venv
 ```
@@ -41,7 +41,19 @@ source venv/bin/activate
 ```
 pip install -r requirements.txt
 ```
-5. Run project from /my_app dir by uvicorn
+5. Create `.env` file in your root dir and set env variables:
+```commandline
+export API_KEY={your api key from OpenWeather API}
+export GEOCODING_API={geocoding api from OpenWeather API}
+export ONE_CALL_API={one call api from OpenWeather API}
+export HISTORY_API={one call api for hystory data from OpenWeather API}
+export WEATHER_API_URI={uri for database connecting postgresql://{user}:{passsword}@{host}:{port}/{db}}
+```
+6. Run command:
+```commandline
+source .env
+```
+7. Run project from /my_app dir by uvicorn
 ```
 uvicorn app:app --reload
 ```
