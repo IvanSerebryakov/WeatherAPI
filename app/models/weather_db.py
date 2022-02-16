@@ -3,12 +3,52 @@ from sqlalchemy import Column, Integer, String, Float, ForeignKey
 from app.models import Base
 
 
+class PastData(Base):
+    __tablename__ = 'past_data'
+    __table_args__ = {'schema': 'public'}
+
+    id: int = Column(Integer(), primary_key=True)
+    past_id: int = Column(Integer(), primary_key=True,
+                          unique=True)
+    dt: int = Column(Integer())
+    sunrise: int = Column(Integer())
+    sunset: int = Column(Integer())
+    temp: float = Column(Float())
+    feels_like: float = Column(Float())
+    pressure: float = Column(Float())
+    humidity: float = Column(Float())
+    dew_point: float = Column(Float())
+    clouds: float = Column(Float())
+    uvi: float = Column(Float())
+    visibility: float = Column(Float())
+    wind_speed: float = Column(Float())
+    wind_gust: float = Column(Float())
+    wind_deg: float = Column(Float())
+    rain: float = Column(Float())
+    snow: float = Column(Float())
+
+
+class PastWeather(Base):
+    __tablename__ = 'past_weather'
+    __table_args__ = {'schema': 'public'}
+
+    id: int = Column(Integer(), primary_key=True)
+    past_id: int = Column(Integer(),
+                          ForeignKey('public.past_data.past_id'),
+                          nullable=False)
+    weather_id: int = Column(Integer())
+    main: str = Column(String())
+    description: str = Column(String())
+    icon: str = Column(String())
+
+
 class HourData(Base):
     __tablename__ = 'hour_data'
     __table_args__ = {'schema': 'public'}
 
     id: int = Column(Integer(), primary_key=True)
-    hour_id: int = Column(Integer(), primary_key=True)
+    hour_id: int = Column(Integer(), primary_key=True,
+                          unique=True)
     dt: int = Column(Integer())
     hour_temp: float = Column(Float())
     feels_like: float = Column(Float())
@@ -28,7 +68,8 @@ class DayData(Base):
     __table_args__ = {'schema': 'public'}
 
     id: int = Column(Integer(), primary_key=True)
-    day_id: int = Column(Integer(), primary_key=True)
+    day_id: int = Column(Integer(), primary_key=True,
+                         unique=True)
     dt: int = Column(Integer())
     sunrise: int = Column(Integer())
     sunset: int = Column(Integer())
@@ -68,7 +109,8 @@ class DayWeather(Base):
     id: int = Column(Integer(), primary_key=True)
     day_id: int = Column(Integer(),
                          ForeignKey('public.day_data.day_id'),
-                         nullable=False)
+                         nullable=False,
+                         unique=True)
     weather_id: int = Column(Integer())
     main: str = Column(String())
     description: str = Column(String())
