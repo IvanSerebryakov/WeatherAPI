@@ -7,9 +7,7 @@ class PastData(Base):
     __tablename__ = 'past_data'
     __table_args__ = {'schema': 'public'}
 
-    id: int = Column(Integer(), primary_key=True)
-    past_id: int = Column(Integer(), primary_key=True,
-                          unique=True)
+    past_id: int = Column(Integer(), primary_key=True)
     dt: int = Column(Integer())
     sunrise: int = Column(Integer())
     sunset: int = Column(Integer())
@@ -46,9 +44,7 @@ class HourData(Base):
     __tablename__ = 'hour_data'
     __table_args__ = {'schema': 'public'}
 
-    id: int = Column(Integer(), primary_key=True)
-    hour_id: int = Column(Integer(), primary_key=True,
-                          unique=True)
+    hour_id: int = Column(Integer(), primary_key=True)
     dt: int = Column(Integer())
     hour_temp: float = Column(Float())
     feels_like: float = Column(Float())
@@ -70,9 +66,7 @@ class DayData(Base):
     __tablename__ = 'day_data'
     __table_args__ = {'schema': 'public'}
 
-    id: int = Column(Integer(), primary_key=True)
-    day_id: int = Column(Integer(), primary_key=True,
-                         unique=True)
+    day_id: int = Column(Integer(), primary_key=True)
     dt: int = Column(Integer())
     sunrise: int = Column(Integer())
     sunset: int = Column(Integer())
@@ -113,8 +107,7 @@ class DayWeather(Base):
     id: int = Column(Integer(), primary_key=True)
     day_id: int = Column(Integer(),
                          ForeignKey('public.day_data.day_id'),
-                         nullable=False,
-                         unique=True)
+                         nullable=False)
     weather_id: int = Column(Integer())
     main: str = Column(String())
     description: str = Column(String())

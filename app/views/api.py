@@ -1,5 +1,3 @@
-import itertools
-
 from app.models.weather_db import HourData
 
 from app import app
@@ -14,7 +12,8 @@ from app.models import (pg_scoped_factory,
 from app.utils.api_utils import (get_lat_lon,
                                  get_now_by_lat_lon,
                                  past_weather_data,
-                                 future_weather_data, check_missed_values)
+                                 future_weather_data,
+                                 check_missed_values)
 from app.utils.datetime_utils import (get_utctime_by_datetime,
                                       iso_date_parser)
 
@@ -74,11 +73,7 @@ def weather(country_code: str, city: str, date: str):
         wind_deg = result_weather['wind_deg']
 
         # commit in past data
-        _id = next(itertools.count(1, 1))
-        past_id = next(itertools.count(1, 1))
-        past_data = PastData(id=_id,
-                             past_id=past_id,
-                             dt=dt,
+        past_data = PastData(dt=dt,
                              sunrise=sunrise,
                              sunset=sunset,
                              temp=temp,
@@ -98,19 +93,20 @@ def weather(country_code: str, city: str, date: str):
         weather_api_db.commit()
 
         # commit in past weather
-        weather_id = result_weather['weather']['id']
-        main = result_weather['weather']['main']
-        description = result_weather['weather']['description']
-        icon = result_weather['weather']['icon']
+        past_result_weather = result_weather['weather'][0]
+        weather_id = past_result_weather['id']
+        main = past_result_weather['main']
+        description = past_result_weather['description']
+        icon = past_result_weather['icon']
 
-        past_weather = PastWeather(id=_id,
-                                   past_id=past_id,
+        past_weather = PastWeather(past_id=past_data.past_id,
                                    weather_id=weather_id,
                                    main=main,
                                    description=description,
                                    icon=icon)
         weather_api_db.add(past_weather)
         weather_api_db.commit()
+        weather_api_db.close()
 
     elif 0 <= days_diff <= 2:
         result_weather = future_weather_data(lat=str(lat), lon=str(lon),
@@ -147,11 +143,7 @@ def weather(country_code: str, city: str, date: str):
             snow_1h = 0.0
 
         # commit in hour data
-        _id = next(itertools.count(1, 1))
-        hour_id = next(itertools.count(60, 1))
-        hour_data = HourData(id=_id,
-                             hour_id=hour_id,
-                             dt=dt,
+        hour_data = HourData(dt=dt,
                              hour_temp=temp,
                              feels_like=feels_like,
                              pressure=pressure,
@@ -176,14 +168,14 @@ def weather(country_code: str, city: str, date: str):
         description = result_weather['weather']['description']
         icon = result_weather['weather']['icon']
 
-        hour_weather = HourWeather(id=_id,
-                                   hour_id=hour_id,
+        hour_weather = HourWeather(hour_id=hour_data.hour_id,
                                    weather_id=weather_id,
                                    main=main,
                                    description=description,
                                    icon=icon)
         weather_api_db.add(hour_weather)
         weather_api_db.commit()
+        weather_api_db.close()
 
     else:
         result_weather = future_weather_data(lat=str(lat), lon=str(lon),
@@ -205,11 +197,7 @@ def weather(country_code: str, city: str, date: str):
         uvi = result_weather['uvi']
 
         # commit in day data
-        _id = next(itertools.count(1, 1))
-        day_id = next(itertools.count(60 * 24, 1))
-        day_data = DayData(id=_id,
-                           day_id=day_id,
-                           dt=dt,
+        day_data = DayData(dt=dt,
                            sunrise=sunrise,
                            sunset=sunset,
                            moonrise=moonrise,
@@ -236,8 +224,7 @@ def weather(country_code: str, city: str, date: str):
         description = result_weather['weather']['description']
         icon = result_weather['weather']['icon']
 
-        day_weather = DayWeather(id=_id,
-                                 day_id=day_id,
+        day_weather = DayWeather(day_id=day_data.day_id,
                                  weather_id=weather_id,
                                  main=main,
                                  description=description,
@@ -253,8 +240,7 @@ def weather(country_code: str, city: str, date: str):
         eve = result_weather['temp']['eve']
         night = result_weather['temp']['night']
 
-        day_temperature = DayTemperature(id=_id,
-                                         day_id=day_id,
+        day_temperature = DayTemperature(day_id=day_data.day_id,
                                          morn=morn,
                                          day=day,
                                          day_min=day_min,
@@ -270,8 +256,7 @@ def weather(country_code: str, city: str, date: str):
         eve = result_weather['feels_like']['eve']
         night = result_weather['feels_like']['night']
 
-        day_feels_like = DayFeelsLike(id=_id,
-                                      day_id=day_id,
+        day_feels_like = DayFeelsLike(day_id=day_data.day_id,
                                       morn=morn,
                                       day=day,
                                       eve=eve,
@@ -279,5 +264,6 @@ def weather(country_code: str, city: str, date: str):
 
         weather_api_db.add(day_feels_like)
         weather_api_db.commit()
+        weather_api_db.close()
 
     return {'result_weather': result_weather}

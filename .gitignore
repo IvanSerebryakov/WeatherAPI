@@ -37,3 +37,5 @@ _f.js
 
 # python
 *.ipynb
+
+*.env
